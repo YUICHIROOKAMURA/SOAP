@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOAP記録法：支援の質を高める記録の技術</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            line-height: 1.8;
+            color: #2d3748;
+            background: linear-gradient(135deg, #f7fafc 0%, #e2e8f0 100%);
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c7a7b 0%, #285e61 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="2" height="2" fill="rgba(255,255,255,0.1)"/></svg>');
+            opacity: 0.3;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 0.9em;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        section {
+            padding: 50px 40px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        section:last-child {
+            border-bottom: none;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: #2c7a7b;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h2 i {
+            font-size: 0.8em;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            color: #285e61;
+            margin: 30px 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3 i {
+            font-size: 0.7em;
+            color: #ed8936;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 1.05em;
+        }
+
+        .intro-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border-left: 5px solid #fc8181;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+
+        .intro-box h4 {
+            color: #c53030;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .intro-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .intro-box li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .intro-box li::before {
+            content: '✗';
+            position: absolute;
+            left: 0;
+            color: #c53030;
+            font-weight: bold;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            border-left: 5px solid #48bb78;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+
+        .success-box h4 {
+            color: #2f855a;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .success-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .success-box li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .success-box li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #2f855a;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+            border-left: 5px solid #4299e1;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+
+        .info-box h4 {
+            color: #2c5282;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fffaf0 0%, #feebc8 100%);
+            border-left: 5px solid #ed8936;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+
+        .warning-box h4 {
+            color: #c05621;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .soap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .soap-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .soap-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #2c7a7b, #4299e1);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .soap-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .soap-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(44, 122, 123, 0.2);
+            border-color: #2c7a7b;
+        }
+
+        .soap-card i {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .soap-card.subjective i { color: #4299e1; }
+        .soap-card.objective i { color: #48bb78; }
+        .soap-card.assessment i { color: #ed8936; }
+        .soap-card.plan i { color: #9f7aea; }
+
+        .soap-card h4 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .soap-card .letter {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .soap-card.subjective .letter { color: #4299e1; }
+        .soap-card.objective .letter { color: #48bb78; }
+        .soap-card.assessment .letter { color: #ed8936; }
+        .soap-card.plan .letter { color: #9f7aea; }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .comparison-card {
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid;
+        }
+
+        .comparison-card.good {
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            border-color: #48bb78;
+        }
+
+        .comparison-card.bad {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border-color: #fc8181;
+        }
+
+        .comparison-card h5 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .comparison-card.good h5 {
+            color: #2f855a;
+        }
+
+        .comparison-card.bad h5 {
+            color: #c53030;
+        }
+
+        .comparison-card pre {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.95em;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .flow-diagram {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border: 2px solid #cbd5e0;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border-left: 5px solid;
+            transition: all 0.3s ease;
+        }
+
+        .flow-step:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .flow-step.step-s { border-color: #4299e1; }
+        .flow-step.step-o { border-color: #48bb78; }
+        .flow-step.step-a { border-color: #ed8936; }
+        .flow-step.step-p { border-color: #9f7aea; }
+
+        .flow-step-icon {
+            font-size: 2.5em;
+            width: 70px;
+            text-align: center;
+            margin-right: 20px;
+        }
+
+        .flow-step.step-s .flow-step-icon { color: #4299e1; }
+        .flow-step.step-o .flow-step-icon { color: #48bb78; }
+        .flow-step.step-a .flow-step-icon { color: #ed8936; }
+        .flow-step.step-p .flow-step-icon { color: #9f7aea; }
+
+        .flow-step-content h5 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            font-size: 2em;
+            color: #cbd5e0;
+            margin: 10px 0;
+        }
+
+        .accordion {
+            margin: 25px 0;
+        }
+
+        .accordion-item {
+            margin-bottom: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-item:hover {
+            border-color: #2c7a7b;
+        }
+
+        .accordion-header {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: #2c7a7b;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+        }
+
+        .accordion-header i {
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-item.active .accordion-header i {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: white;
+        }
+
+        .accordion-item.active .accordion-content {
+            max-height: 2000px;
+        }
+
+        .accordion-content-inner {
+            padding: 25px;
+        }
+
+        .checklist {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .checklist-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f7fafc;
+            border-radius: 6px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .checklist-item:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+        }
+
+        .checklist-item i {
+            color: #2c7a7b;
+            font-size: 1.2em;
+            margin-top: 3px;
+        }
+
+        .case-study {
+            background: linear-gradient(135deg, #ebf4ff 0%, #dbeafe 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .case-study h4 {
+            color: #1e40af;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .case-scenario {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .soap-example {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid;
+        }
+
+        .soap-example.s-example { border-color: #4299e1; }
+        .soap-example.o-example { border-color: #48bb78; }
+        .soap-example.a-example { border-color: #ed8936; }
+        .soap-example.p-example { border-color: #9f7aea; }
+
+        .soap-example h5 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .soap-example.s-example h5 { color: #2c5282; }
+        .soap-example.o-example h5 { color: #2f855a; }
+        .soap-example.a-example h5 { color: #c05621; }
+        .soap-example.p-example h5 { color: #6b46c1; }
+
+        .timeline {
+            position: relative;
+            padding: 30px 0;
+            margin: 30px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #4299e1, #48bb78, #ed8936, #9f7aea);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 70px;
+            margin-bottom: 30px;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .timeline-item:nth-child(1) .timeline-icon { border-color: #4299e1; color: #4299e1; }
+        .timeline-item:nth-child(2) .timeline-icon { border-color: #48bb78; color: #48bb78; }
+        .timeline-item:nth-child(3) .timeline-icon { border-color: #ed8936; color: #ed8936; }
+        .timeline-item:nth-child(4) .timeline-icon { border-color: #9f7aea; color: #9f7aea; }
+
+        .timeline-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        th {
+            background: linear-gradient(135deg, #2c7a7b 0%, #285e61 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        .quote {
+            border-left: 4px solid #2c7a7b;
+            padding: 20px 25px;
+            margin: 25px 0;
+            background: #f7fafc;
+            font-style: italic;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .quote-author {
+            text-align: right;
+            font-weight: bold;
+            color: #2c7a7b;
+            margin-top: 10px;
+            font-style: normal;
+        }
+
+        .highlight {
+            background: linear-gradient(transparent 60%, #fef5e7 60%);
+            padding: 2px 5px;
+            font-weight: bold;
+        }
+
+        .resources {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+
+        .resources h4 {
+            color: #2c7a7b;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .resources ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .resources li {
+            padding: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .resources li i {
+            color: #2c7a7b;
+        }
+
+        .resources a {
+            color: #2c5282;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .resources a:hover {
+            color: #2c7a7b;
+            text-decoration: underline;
+        }
+
+        footer {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        footer p {
+            margin: 10px 0;
+            opacity: 0.9;
+        }
+
+        .author {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.95em;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 40px 20px;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            section {
+                padding: 30px 20px;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            .soap-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-item {
+                padding-left: 60px;
+            }
+
+            .timeline-icon {
+                left: 0;
+            }
+        }
+
+        .key-point {
+            background: linear-gradient(135deg, #fef5e7 0%, #fdebd0 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .key-point h4 {
+            color: #b45309;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .process-flow {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .process-step {
+            display: flex;
+            align-items: flex-start;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .process-step::before {
+            content: '';
+            position: absolute;
+            left: 35px;
+            top: 60px;
+            bottom: -20px;
+            width: 2px;
+            background: #cbd5e0;
+        }
+
+        .process-step:last-child::before {
+            display: none;
+        }
+
+        .process-number {
+            min-width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2c7a7b 0%, #285e61 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3em;
+            margin-right: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .process-content {
+            flex: 1;
+        }
+
+        .process-content h5 {
+            color: #2c7a7b;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-clipboard-list"></i> SOAP記録法</h1>
+            <p>支援の質を高める記録の技術</p>
+            <p class="subtitle">就労移行支援における記録作成の標準化と思考プロセスの可視化</p>
+        </header>
+
+        <!-- 1. 導入 -->
+        <section>
+            <h2><i class="fas fa-exclamation-triangle"></i> 支援現場の記録、こんな課題ありませんか？</h2>
+            
+            <div class="intro-box">
+                <h4><i class="fas fa-times-circle"></i> よくある記録の問題</h4>
+                <ul>
+                    <li>「利用者は元気そうだった」→ 具体的に何を観察したのか不明</li>
+                    <li>「前向きに取り組んでいる」→ 支援者の主観か、利用者の発言か区別できない</li>
+                    <li>「継続支援が必要」→ 具体的に何をするのか書かれていない</li>
+                    <li>スタッフによって記録の詳しさがバラバラ</li>
+                    <li>多職種で情報を共有しようとしても、記録から状況が読み取れない</li>
+                </ul>
+            </div>
+
+            <p>これらの問題は、記録者の能力不足ではありません。<span class="highlight">記録のフレームワーク（枠組み）が共有されていない</span>ことが根本原因です。</p>
+
+            <div class="success-box">
+                <h4><i class="fas fa-check-circle"></i> なぜ記録が重要なのか</h4>
+                <ul>
+                    <li><strong>法的根拠</strong>：障害者総合支援法では個別支援計画とその実施記録が義務</li>
+                    <li><strong>支援の質</strong>：記録がなければ支援の効果を検証できない</li>
+                    <li><strong>多職種連携</strong>：チーム支援には共通言語としての記録が必須</li>
+                    <li><strong>利用者の権利擁護</strong>：虐待防止や適切な支援の証拠となる</li>
+                    <li><strong>エビデンス構築</strong>：支援実践の蓄積が福祉の発展につながる</li>
+                </ul>
+            </div>
+
+            <p>SOAP記録法は、これらの課題を解決し、<span class="highlight">支援者の思考プロセスを可視化する</span>ための強力なツールです。</p>
+        </section>
+
+        <!-- 2. SOAPの誕生と哲学 -->
+        <section>
+            <h2><i class="fas fa-history"></i> SOAP記録法の誕生と哲学</h2>
+
+            <div class="info-box">
+                <h4><i class="fas fa-lightbulb"></i> 問題指向型記録（POMR）という革新</h4>
+                <p>SOAP記録法は、1960年代に米国の医師Lawrence Weed博士が開発した<strong>問題指向型医療記録（Problem-Oriented Medical Record: POMR）</strong>の一部として誕生しました。</p>
+                <p>それまでの医療記録は、医師や看護師が思いついた順に記述する「物語型（ナラティブ）記録」が主流でした。しかし、これでは重要な情報が埋もれたり、他職種との情報共有が困難でした。</p>
+            </div>
+
+            <h3><i class="fas fa-brain"></i> SOAPの哲学：科学的思考プロセスの標準化</h3>
+
+            <p>SOAP記録法の本質は、<span class="highlight">仮説検証型の臨床推論を記録に反映させる</span>ことにあります。</p>
+
+            <div class="quote">
+                「良い記録とは、支援者が何を考え、どう判断し、何を計画したかが、他者にも追体験できるように書かれたものである」
+                <div class="quote-author">— Lawrence Weed博士の思想より</div>
+            </div>
+
+            <div class="flow-diagram">
+                <h4 style="text-align: center; margin-bottom: 20px; color: #2c7a7b;"><i class="fas fa-project-diagram"></i> SOAPの基本構造</h4>
+                
+                <div class="flow-step step-s">
+                    <div class="flow-step-icon"><i class="fas fa-comments"></i></div>
+                    <div class="flow-step-content">
+                        <h5><strong>S</strong> - Subjective（主観的情報）</h5>
+                        <p>利用者本人や家族が語った言葉・訴え・感情</p>
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+
+                <div class="flow-step step-o">
+                    <div class="flow-step-icon"><i class="fas fa-eye"></i></div>
+                    <div class="flow-step-content">
+                        <h5><strong>O</strong> - Objective（客観的情報）</h5>
+                        <p>支援者が観察した事実・行動・環境・実施内容</p>
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+
+                <div class="flow-step step-a">
+                    <div class="flow-step-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="flow-step-content">
+                        <h5><strong>A</strong> - Assessment（評価・分析）</h5>
+                        <p>S+Oから導かれる専門的解釈・判断・仮説</p>
+                    </div>
+                </div>
+
+                <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+
+                <div class="flow-step step-p">
+                    <div class="flow-step-icon"><i class="fas fa-tasks"></i></div>
+                    <div class="flow-step-content">
+                        <h5><strong>P</strong> - Plan（計画）</h5>
+                        <p>Aに基づく具体的な支援方針・次回の目標</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="key-point">
+                <h4><i class="fas fa-key"></i> 重要なポイント</h4>
+                <p>SOAPは単なる記録のテンプレートではなく、<strong>「データ収集→分析→計画」という科学的プロセス</strong>を記録に落とし込む方法論です。この構造により、支援者の恣意的な判断を防ぎ、エビデンスに基づく支援（Evidence-Based Practice）を実現します。</p>
+            </div>
+        </section>
+
+        <!-- 3. 4つの要素を深く理解する -->
+        <section>
+            <h2><i class="fas fa-book-open"></i> SOAPの4要素を深く理解する</h2>
+
+            <div class="accordion">
+                <!-- S: Subjective -->
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span><i class="fas fa-comments" style="color: #4299e1;"></i> <strong>S - Subjective（主観的情報）</strong>：利用者の声を正確に捉える</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-content-inner">
+                            <h4>Sに記録すること</h4>
+                            <ul style="padding-left: 20px; margin: 15px 0;">
+                                <li>利用者本人の発言（「　」で直接引用）</li>
+                                <li>利用者が表現した感情や訴え</li>
+                                <li>家族や支援者（他職種含む）からの聞き取り情報</li>
+                                <li>非言語的なコミュニケーション（ため息、表情など）も文章化</li>
+                            </ul>
+
+                            <h4 style="margin-top: 25px;">Sの重要性</h4>
+                            <p>支援の出発点は利用者の<strong>主体性</strong>です。本人が何を感じ、何を望んでいるかを正確に記録することで、<span class="highlight">本人中心の支援（Person-Centered Support）</span>が可能になります。</p>
+
+                            <div class="comparison-grid" style="margin-top: 20px;">
+                                <div class="comparison-card bad">
+                                    <h5><i class="fas fa-times"></i> NG例</h5>
+                                    <pre>S: やる気がなさそうだった</pre>
+                                    <p style="margin-top: 10px; font-size: 0.95em;">→ これは支援者の解釈であり、Sではなく後述のAに該当します</p>
+                                </div>
+                                <div class="comparison-card good">
+                                    <h5><i class="fas fa-check"></i> Good例</h5>
+                                    <pre>S: 「今日は気分が乗らない」「何をやってもうまくいかない気がする」と発言</pre>
+                                    <p style="margin-top: 10px; font-size: 0.95em;">→ 本人の言葉を直接引用し、具体的に記録</p>
+                                </div>
+                            </div>
+
+                            <div class="warning-box" style="margin-top: 20px;">
+                                <h4><i class="fas fa-exclamation-triangle"></i> よくある間違い</h4>
+                                <ul style="padding-left: 20px;">
+                                    <li>支援者の解釈を混入させる：「不安そうだった」→ 何を観察してそう判断したかをOへ</li>
+                                    <li>要約しすぎる：「前向きな発言あり」→ 具体的な言葉を引用する</li>
+                                    <li>発言がない場合に「S: 特になし」と書く→「本日、具体的な訴えや発言は見られなかった」と事実を記録</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- O: Objective -->
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span><i class="fas fa-eye" style="color: #48bb78;"></i> <strong>O - Objective（客観的情報）</strong>：観察可能な事実のみを記録</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-content-inner">
+                            <h4>Oに記録すること</h4>
+                            <ul style="padding-left: 20px; margin: 15px 0;">
+                                <li>観察可能な行動（遅刻の有無、作業への取り組み姿勢など）</li>
+                                <li>表情、姿勢、動作の様子</li>
+                                <li>実施した支援内容（面談、作業訓練、環境調整など）</li>
+                                <li>測定可能なデータ（作業時間、正答率、出席日数など）</li>
+                                <li>他職種からの報告（具体的な観察内容）</li>
+                            </ul>
+
+                            <h4 style="margin-top: 25px;">Oの重要性</h4>
+                            <p>客観的事実の記録は、<span class="highlight">再現性と検証可能性</span>を保証します。「誰が見ても同じように理解できる」記述が理想です。</p>
+
+                            <div class="comparison-grid" style="margin-top: 20px;">
+                                <div class="comparison-card bad">
+                                    <h5><i class="fas fa-times"></i> NG例</h5>
+                                    <pre>O: 集中力が低下していた</pre>
+                                    <p style="margin-top: 10px; font-size: 0.95em;">→ 「集中力が低下」は解釈であり、何を観察したかが不明</p>
+                                </div>
+                                <div class="comparison-card good">
+                                    <h5><i class="fas fa-check"></i> Good例</h5>
+                                    <pre>O: データ入力作業中、5分に1回程度スマートフォンを確認する様子が見られた。作業開始30分後から視線が定まらず、ため息をつく頻度が増加。作業ペースは通常の約60%程度。</pre>
+                                    <p style="margin-top: 10px; font-size: 0.95em;">→ 具体的な行動と測定可能な情報を記録</p>
+                                </div>
+                            </div>
+
+                            <div class="info-box" style="margin-top: 20px;">
+                                <h4><i class="fas fa-info-circle"></i> 記録のコツ</h4>
+                                <p><strong>5W1H（いつ、どこで、誰が、何を、なぜ、どのように）</strong>を意識すると、具体性が高まります。</p>
+                                <p style="margin-top: 10px;">例：「PC作業中（いつ）、座席で（どこで）、利用者が（誰が）、キーボードを叩く動作を止め（何を）、窓の外を見つめる様子（どのように）が3回見られた」</p>
+                            </div>
+
+                            <div class="warning-box" style="margin-top: 20px;">
+                                <h4><i class="fas fa-exclamation-triangle"></i> よくある間違い</h4>
+                                <ul style="padding-left: 20px;">
+                                    <li>推測を含める：「疲れているようだった」→ 何を観察したかを具体的に</li>
+                                    <li>曖昧な表現：「元気がなかった」→ 表情、姿勢、声のトーンなど具体的に</li>
+                                    <li>支援内容の記録漏れ：観察だけでなく、実施した支援も記録する</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- A: Assessment -->
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span><i class="fas fa-chart-line" style="color: #ed8936;"></i> <strong>A - Assessment（評価・分析）</strong>：専門的判断を明示する</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-content-inner">
+                            <h4>Aに記録すること</h4>
+                            <ul style="padding-left: 20px; margin: 15px 0;">
+                                <li>S+Oから導かれる専門的解釈と判断</li>
+                                <li>支援目標に対する達成度の評価</li>
+                                <li>課題や問題の特定（何が問題か）</li>
+                                <li>仮説の提示（なぜそうなっているか）</li>
+                                <li>理論的根拠やエビデンスへの言及</li>
+                            </ul>
+
+                            <h4 style="margin-top: 25px;">Aの重要性</h4>
+                            <p>Assessmentは、SOAPの<strong>「頭脳」</strong>に当たる部分です。ここで支援者の専門性が問われます。単なる感想ではなく、<span class="highlight">理論やエビデンスに基づいた分析</span>が求められます。</p>
+
+                            <div class="comparison-grid" style="margin-top: 20px;">
+                                <div class="comparison-card bad">
+                                    <h5><i class="fas fa-times"></i> NG例</h5>
+                                    <pre>A: 調子が悪そうだった。継続支援が必要。</pre>
+                                    <p style="margin-top: 10px; font-size: 0.95em;">→ 根拠が不明確で、具体的な分析がない</p>
+                                </div>
+                                <div class="comparison-card good">
+                                    <h5><i class="fas fa-check"></i> Good例</h5>
+                                    <pre>A: 発言内容（S）と作業中の様子（O）から、抑うつ的な認知パターン（自動思考「何をやってもうまくいかない」）が見られる。作業ペースの低下は、気分の落ち込みによる集中力の減退と考えられる。ただし、スタッフからの声かけには応答があり、完全な引きこもり状態ではない。個別支援計画の「ストレス対処スキルの獲得」という目標に対して、現在は自己対処が困難な状況と評価。認知行動療法的アプローチが有効と考えられる。</pre>
+                                    <p style="margin-top: 10px; font-size: 0.95em;">→ S+Oに基づき、理論的背景を示しながら分析</p>
+                                </div>
+                            </div>
+
+                            <div class="key-point" style="margin-top: 20px;">
+                                <h4><i class="fas fa-key"></i> エビデンスベースドな評価</h4>
+                                <p>就労移行支援では、以下のような視点が重要です：</p>
+                                <ul style="padding-left: 20px; margin-top: 10px;">
+                                    <li><strong>心理学的視点</strong>：認知、感情、行動の関連性</li>
+                                    <li><strong>社会モデル</strong>：障害は個人ではなく環境との相互作用で生じる</li>
+                                    <li><strong>ストレングス視点</strong>：できないことではなく、できることや強みに着目</li>
+                                    <li><strong>エンパワメント</strong>：本人の選択と決定を尊重</li>
+                                </ul>
+                            </div>
+
+                            <div class="warning-box" style="margin-top: 20px;">
+                                <h4><i class="fas fa-exclamation-triangle"></i> よくある間違い</h4>
+                                <ul style="padding-left: 20px;">
+                                    <li>Oの繰り返し：「遅刻が多い」→ それをどう評価するかを書く</li>
+                                    <li>根拠のない決めつけ：「やる気がない」→ 行動の背景要因を分析する</li>
+                                    <li>目標との関連が不明：個別支援計画の目標と関連づける</li>
+                                    <li>専門用語の乱用：理論を引用する際は、具体的にどう当てはまるか説明</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- P: Plan -->
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span><i class="fas fa-tasks" style="color: #9f7aea;"></i> <strong>P - Plan（計画）</strong>：実行可能で測定可能な計画を立てる</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-content-inner">
+                            <h4>Pに記録すること</h4>
+                            <ul style="padding-left: 20px; margin: 15px 0;">
+                                <li>Aに基づく具体的な支援方針</li>
+                                <li>次回の短期目標（測定可能な形で）</li>
+                                <li>実施する支援技法や環境調整</li>
+                                <li>多職種連携の必要性</li>
+                                <li>モニタリング計画（いつ、何を評価するか）</li>
+                            </ul>
+
+                            <h4 style="margin-top: 25px;">Pの重要性</h4>
+                            <p>Planは、記録を<strong>「次の支援行動」</strong>につなげる部分です。<span class="highlight">SMART原則（Specific, Measurable, Achievable, Relevant, Time-bound）</span>に基づいた計画が理想です。</p>
+
+                            <div class="comparison-grid" style="margin-top: 20px;">
+                                <div class="comparison-card bad">
+                                    <h5><i class="fas fa-times"></i> NG例</h5>
+                                    <pre>P: 継続して様子を見る。声かけを増やす。</pre>
+                                    <p style="margin-top: 10px; font-size: 0.95em;">→ 曖昧で、誰が何をするか不明</p>
+                                </div>
+                                <div class="comparison-card good">
+                                    <h5><i class="fas fa-check"></i> Good例</h5>
+                                    <pre>P: 
+【短期目標】次回までに、ストレス状況を認識し言語化できるようになる
+
+【具体的支援】
+1. 次回面談（2日後）で、認知行動療法的アプローチを用いたストレス対処ワークを実施（30分）
+2. 作業開始前に「今日の気分」を3段階で自己評価してもらい、記録を開始
+3. 作業中は30分ごとに声かけを行い、休憩を促す環境調整
+
+【連携】
+精神保健福祉士に現状を共有し、必要に応じて医療機関との連携を検討
+
+【評価】
+1週間後に気分の自己評価記録を振り返り、パターンを本人と共有</pre>
+                                    <p style="margin-top: 10px; font-size: 0.95em;">→ 5W1Hが明確で、測定可能な計画</p>
+                                </div>
+                            </div>
+
+                            <div class="info-box" style="margin-top: 20px;">
+                                <h4><i class="fas fa-info-circle"></i> SMART原則の適用</h4>
+                                <table>
+                                    <tr>
+                                        <th style="width: 120px;">項目</th>
+                                        <th>意味</th>
+                                        <th>具体例</th>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Specific</strong></td>
+                                        <td>具体的</td>
+                                        <td>「頑張る」ではなく「1時間の作業を完遂する」</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Measurable</strong></td>
+                                        <td>測定可能</td>
+                                        <td>「集中力向上」ではなく「作業中断を5回以下に」</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Achievable</strong></td>
+                                        <td>達成可能</td>
+                                        <td>現状を踏まえた現実的な目標設定</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Relevant</strong></td>
+                                        <td>関連性</td>
+                                        <td>個別支援計画の目標と連動</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Time-bound</strong></td>
+                                        <td>期限設定</td>
+                                        <td>「いつまでに」を明記</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div class="warning-box" style="margin-top: 20px;">
+                                <h4><i class="fas fa-exclamation-triangle"></i> よくある間違い</h4>
+                                <ul style="padding-left: 20px;">
+                                    <li>Aと無関係な計画：評価に基づかない思いつきの支援</li>
+                                    <li>抽象的すぎる：「寄り添う」「見守る」だけでは不十分</li>
+                                    <li>評価方法の欠如：計画の効果をどう測るか明記する</li>
+                                    <li>本人の意向無視：本人の選択を尊重した計画か確認</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 実践ケーススタディ -->
+        <section>
+            <h2><i class="fas fa-user-graduate"></i> 実践：ケーススタディで学ぶ</h2>
+
+            <div class="case-study">
+                <h4><i class="fas fa-file-alt"></i> 就労支援の典型場面</h4>
+                
+                <div class="case-scenario">
+                    <h5><i class="fas fa-clipboard"></i> 状況設定</h5>
+                    <p><strong>利用者</strong>：Aさん（20代、ASD診断あり、就労移行支援利用3ヶ月目）</p>
+                    <p><strong>個別支援計画の目標</strong>：「職場でのコミュニケーションスキルの獲得」「2時間の継続作業ができるようになる」</p>
+                    <p><strong>今日の場面</strong>：グループワーク（プレゼンテーション資料作成）への参加</p>
+                </div>
+
+                <div class="soap-example s-example">
+                    <h5><i class="fas fa-quote-left"></i> S（主観的情報）</h5>
+                    <p>作業開始前：「グループワークは苦手です」「他の人と話すのが緊張する」と発言。</p>
+                    <p>作業中：「自分の意見が正しいか分からない」「こんなこと言ったら変に思われないかな」とつぶやく様子あり。</p>
+                    <p>終了後の振り返り：「思ったより話せたけど、疲れた」「○○さん（他の利用者）の意見を聞けて参考になった」と発言。</p>
+                </div>
+
+                <div class="soap-example o-example">
+                    <h5><i class="fas fa-search"></i> O（客観的情報）</h5>
+                    <p><strong>作業開始時（10:00）</strong>：他の3名の利用者と同じテーブルに着席。視線は下向き、手を組んでいる姿勢。</p>
+                    <p><strong>作業中（10:05-11:30）</strong>：</p>
+                    <ul style="padding-left: 20px; margin: 10px 0;">
+                        <li>最初の15分間は発言なし。他メンバーの会話を聞いている様子</li>
+                        <li>10:20頃、スタッフから「Aさんはどう思いますか？」と声かけ→「そうですね...」と3秒考えた後、「この部分は○○にした方がいいと思います」と提案</li>
+                        <li>提案は他メンバーに受け入れられ、資料に反映された</li>
+                        <li>その後、2回自発的に意見を述べる場面あり（10:45、11:10）</li>
+                        <li>11:00頃から貧乏ゆすりが見られ、時計を頻繁に確認する様子</li>
+                    </ul>
+                    <p><strong>環境調整</strong>：Aさんが過去に「大人数は苦手」と述べていたため、今回は4名の小グループに配置。途中、11:15に5分間の休憩を設定。</p>
+                </div>
+
+                <div class="soap-example a-example">
+                    <h5><i class="fas fa-balance-scale"></i> A（評価・分析）</h5>
+                    <p><strong>【評価】</strong></p>
+                    <p>発言内容（S）と行動観察（O）から、Aさんは他者とのコミュニケーションに対して強い不安を抱えているが、<span class="highlight">適切な環境設定と支援があれば意見を表明できる</span>ことが確認された。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>【分析】</strong></p>
+                    <p>ASDの特性として、暗黙のルールの理解困難さや、他者の評価への過敏さが背景にあると考えられる。「変に思われないか」という発言は、<strong>社会的認知の不安</strong>を示している。</p>
+                    <p>しかし、実際には提案が受け入れられており、グループ内での役割を果たせている。これは本人の<strong>自己効力感（self-efficacy）</strong>を高める重要な体験となった可能性がある。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>【目標との関連】</strong></p>
+                    <p>個別支援計画の目標「職場でのコミュニケーションスキルの獲得」に対して、小集団での意見表明という初歩的なスキルは発揮できている。ただし、90分の作業で疲労が蓄積しており（貧乏ゆすり、時計確認の増加）、「2時間の継続作業」という目標に対しては、<span class="highlight">休憩の構造化が必要</span>と評価。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>【理論的根拠】</strong></p>
+                    <p>社会的スキル訓練（SST）の段階的学習理論に基づけば、Aさんは現在「モデリング→リハーサル→フィードバック」のサイクルを経験している。今回の成功体験を言語化し、<strong>認知の再構成</strong>（「話しても大丈夫だった」）を促すことが次のステップとなる。</p>
+                </div>
+
+                <div class="soap-example p-example">
+                    <h5><i class="fas fa-clipboard-check"></i> P（計画）</h5>
+                    <p><strong>【短期目標（次回1週間後まで）】</strong></p>
+                    <p>グループワークで、スタッフの促しなく最低1回は自発的に意見を述べることができる。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>【具体的支援内容】</strong></p>
+                    <ol style="padding-left: 20px; margin: 10px 0;">
+                        <li><strong>振り返り面談（明日実施、30分）</strong>
+                            <ul style="padding-left: 20px; margin-top: 5px;">
+                                <li>今回の体験を振り返り、「提案が受け入れられた」という成功体験を言語化</li>
+                                <li>「変に思われる」という不安に対して、認知の再構成を支援</li>
+                                <li>次回のグループワークに向けた心理的準備（不安階層表の作成）</li>
+                            </ul>
+                        </li>
+                        <li><strong>環境調整</strong>
+                            <ul style="padding-left: 20px; margin-top: 5px;">
+                                <li>次回も4名の小グループ設定を継続</li>
+                                <li>60分ごとに構造化された休憩時間（5分）を設定</li>
+                                <li>「今日のテーマ」を事前に書面で提示（準備時間の確保）</li>
+                            </ul>
+                        </li>
+                        <li><strong>スキル獲得支援</strong>
+                            <ul style="padding-left: 20px; margin-top: 5px;">
+                                <li>「意見を述べる」場面のロールプレイ（個別面談内で実施）</li>
+                                <li>発言のテンプレート提供（例：「私は○○だと思います。理由は△△です」）</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <p style="margin-top: 15px;"><strong>【多職種連携】</strong></p>
+                    <p>ジョブコーチに今回の成功体験を共有し、職場実習開始時の環境調整（小規模チーム配置、休憩の構造化）について検討を依頼。</p>
+                    
+                    <p style="margin-top: 15px;"><strong>【モニタリング計画】</strong></p>
+                    <p>次回グループワーク時（1週間後）に、自発的発言の回数、発言時の表情・姿勢、疲労のサイン（貧乏ゆすり等）を観察・記録し、目標達成度を評価する。</p>
+                </div>
+            </div>
+
+            <div class="key-point">
+                <h4><i class="fas fa-lightbulb"></i> このケースから学べること</h4>
+                <ul style="padding-left: 20px;">
+                    <li><strong>S</strong>は本人の言葉を直接引用し、内面の不安を捉えている</li>
+                    <li><strong>O</strong>は時系列で具体的な行動を記録し、環境設定も明記</li>
+                    <li><strong>A</strong>は理論（社会的認知、自己効力感、SST理論）に基づき分析し、目標と関連づけている</li>
+                    <li><strong>P</strong>はSMART原則に沿い、測定可能で具体的な計画を立案</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 5. 思考プロセスの可視化 -->
+        <section>
+            <h2><i class="fas fa-brain"></i> 思考プロセスの可視化：S+O→A→P</h2>
+
+            <p>SOAPの真価は、<span class="highlight">支援者の臨床推論プロセスを誰でも追跡できる</span>点にあります。以下の図は、データから計画までの思考の流れを示しています。</p>
+
+            <div class="process-flow">
+                <h4 style="text-align: center; color: #2c7a7b; margin-bottom: 25px;"><i class="fas fa-cogs"></i> エビデンスベースドな支援の流れ</h4>
+
+                <div class="process-step">
+                    <div class="process-number">1</div>
+                    <div class="process-content">
+                        <h5>データ収集（S + O）</h5>
+                        <p>主観的情報と客観的情報を<strong>分離して</strong>収集する。これにより、「事実」と「解釈」の混同を防ぐ。</p>
+                        <p style="margin-top: 8px; color: #718096; font-size: 0.95em;">→ 例：「やる気がない」（解釈）ではなく、「作業中、視線が下を向いている」（事実）を記録</p>
+                    </div>
+                </div>
+
+                <div class="process-step">
+                    <div class="process-number">2</div>
+                    <div class="process-content">
+                        <h5>統合と分析（S + O → A）</h5>
+                        <p>収集したデータを<strong>理論的枠組み</strong>に照らし合わせて解釈する。「なぜそうなのか？」を考える。</p>
+                        <p style="margin-top: 8px; color: #718096; font-size: 0.95em;">→ 例：本人の発言（S）と行動（O）から、「学習性無力感」の状態と仮説を立てる</p>
+                    </div>
+                </div>
+
+                <div class="process-step">
+                    <div class="process-number">3</div>
+                    <div class="process-content">
+                        <h5>仮説の検証（A → P）</h5>
+                        <p>分析から導いた仮説を<strong>次の支援で検証</strong>する計画を立てる。PDCAサイクルの開始点。</p>
+                        <p style="margin-top: 8px; color: #718096; font-size: 0.95em;">→ 例：「学習性無力感」なら、小さな成功体験を積む支援を計画し、その効果を測定</p>
+                    </div>
+                </div>
+
+                <div class="process-step">
+                    <div class="process-number">4</div>
+                    <div class="process-content">
+                        <h5>実行とモニタリング（P → 次のS + O）</h5>
+                        <p>計画を実行し、その結果を再びS+Oとして記録。継続的な改善サイクルを回す。</p>
+                        <p style="margin-top: 8px; color: #718096; font-size: 0.95em;">→ 例：成功体験の支援後、「できた！」という発言（S）や笑顔（O）を記録し、仮説の妥当性を確認</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4><i class="fas fa-flask"></i> エビデンスベースド・プラクティス（EBP）との関連</h4>
+                <p>SOAPは、EBPの3要素を統合するツールとして機能します：</p>
+                <ol style="padding-left: 20px; margin-top: 10px;">
+                    <li><strong>研究エビデンス</strong>：Aで理論や研究知見を引用</li>
+                    <li><strong>専門的判断</strong>：S+Oの統合と解釈</li>
+                    <li><strong>利用者の価値観</strong>：Sで本人の希望を捉え、Pで尊重</li>
+                </ol>
+                <p style="margin-top: 10px;">この3つを記録に残すことで、支援の<span class="highlight">根拠と過程が透明化</span>されます。</p>
+            </div>
+        </section>
+
+        <!-- 6. 批判的視点と限界 -->
+        <section>
+            <h2><i class="fas fa-balance-scale-right"></i> 批判的視点：SOAPの限界を知る</h2>
+
+            <p>どんな優れた方法論にも限界があります。SOAPを盲信せず、<span class="highlight">批判的に使いこなす</span>ことが重要です。</p>
+
+            <h3><i class="fas fa-exclamation-circle"></i> SOAPで捉えきれないもの</h3>
+
+            <div class="warning-box">
+                <h4><i class="fas fa-user-friends"></i> 1. 関係性の文脈</h4>
+                <p>SOAPは「個人」に焦点を当てるため、<strong>支援者-利用者の関係性</strong>や<strong>家族・地域とのつながり</strong>といった文脈が見えにくくなります。</p>
+                <p style="margin-top: 10px;"><strong>対策</strong>：必要に応じて、関係性や文脈を補足する記述を追加する。例：「利用者は、特定のスタッフ（○○さん）との対話では表情が明るくなる傾向」</p>
+            </div>
+
+            <div class="warning-box">
+                <h4><i class="fas fa-user-clock"></i> 2. 時間的な変化と成長のプロセス</h4>
+                <p>1回の記録は「その時点」のスナップショットに過ぎません。<strong>長期的な変化や成長の物語</strong>は見えにくくなります。</p>
+                <p style="margin-top: 10px;"><strong>対策</strong>：定期的に複数のSOAP記録を振り返り、「経時記録」として変化を可視化する。グラフや表でトレンドを示すことも有効。</p>
+            </div>
+
+            <div class="warning-box">
+                <h4><i class="fas fa-globe"></i> 3. 文化的・社会的背景</h4>
+                <p>SOAPは西洋医学のモデルに基づいており、<strong>文化的多様性</strong>への配慮が不十分な場合があります。特に、個人主義的価値観が前提となっているため、集団主義的文化圏では適用が難しい場面も。</p>
+                <p style="margin-top: 10px;"><strong>対策</strong>：利用者の文化的背景（宗教、価値観、家族構造など）を理解し、記録に反映させる。</p>
+            </div>
+
+            <h3><i class="fas fa-exclamation-triangle"></i> 形式主義の罠</h3>
+
+            <div class="intro-box">
+                <h4><i class="fas fa-robot"></i> SOAPが「作業」になってしまう危険</h4>
+                <ul>
+                    <li>S・O・A・Pの「枠」を埋めることが目的化し、内容が形式的になる</li>
+                    <li>「テンプレート通り」に書くことで思考が停止し、本質的な分析が失われる</li>
+                    <li>記録に時間を取られすぎて、直接支援の時間が減る</li>
+                </ul>
+            </div>
+
+            <div class="success-box">
+                <h4><i class="fas fa-heart"></i> 本質を忘れない</h4>
+                <p>SOAPは<strong>目的ではなく手段</strong>です。記録の本質は、「利用者の人生をより良くするための支援を、チームで継続的に改善していくこと」にあります。</p>
+                <p style="margin-top: 10px;">形式に縛られすぎず、「この記録は、利用者の支援に本当に役立つか？」を常に自問しましょう。</p>
+            </div>
+
+            <h3><i class="fas fa-random"></i> 他の記録方式との使い分け</h3>
+
+            <table style="margin-top: 20px;">
+                <tr>
+                    <th>記録方式</th>
+                    <th>特徴</th>
+                    <th>適している場面</th>
+                </tr>
+                <tr>
+                    <td><strong>SOAP</strong></td>
+                    <td>問題指向型、分析的</td>
+                    <td>個別面談、アセスメント、支援計画の見直し</td>
+                </tr>
+                <tr>
+                    <td><strong>DAP</strong></td>
+                    <td>SOAPを簡略化（SとOを統合）</td>
+                    <td>日常的な支援場面、時間が限られている時</td>
+                </tr>
+                <tr>
+                    <td><strong>ナラティブ</strong></td>
+                    <td>物語的、文脈重視</td>
+                    <td>初回面談、ライフストーリーの記録</td>
+                </tr>
+                <tr>
+                    <td><strong>フォーカスチャーティング</strong></td>
+                    <td>特定の問題に焦点</td>
+                    <td>緊急時、特定の行動問題への対応</td>
+                </tr>
+            </table>
+
+            <p style="margin-top: 20px;">状況に応じて<strong>柔軟に使い分ける</strong>ことが、記録の質を高めます。</p>
+        </section>
+
+        <!-- 7. 実践ガイド -->
+        <section>
+            <h2><i class="fas fa-list-check"></i> 実践ガイド：質の高い記録を書くために</h2>
+
+            <h3><i class="fas fa-route"></i> 記録作成の手順</h3>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon">S</div>
+                    <div class="timeline-content">
+                        <h5>Subjectiveから書き始める</h5>
+                        <p><strong>なぜ？</strong> 支援の主役は利用者本人。その声を最初に捉えることで、本人中心の記録になります。</p>
+                        <p style="margin-top: 8px;"><strong>コツ</strong>：面談や支援の直後に、本人の発言をメモしておく（時間が経つと記憶が曖昧に）</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon">O</div>
+                    <div class="timeline-content">
+                        <h5>Objectiveで事実を記録</h5>
+                        <p><strong>なぜ？</strong> 「何が起きたか」の客観的事実がなければ、評価の根拠が不明確になります。</p>
+                        <p style="margin-top: 8px;"><strong>コツ</strong>：5W1Hを意識。特に「いつ」「どのくらい（頻度・強度）」を記録すると、後で比較しやすい</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon">A</div>
+                    <div class="timeline-content">
+                        <h5>AssessmentでS+Oを統合</h5>
+                        <p><strong>なぜ？</strong> ここが専門性の見せ所。理論やエビデンスに基づいた解釈が求められます。</p>
+                        <p style="margin-top: 8px;"><strong>コツ</strong>：「なぜそうなのか？」を3回問う。表面的な理由で止まらず、背景要因まで掘り下げる</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-icon">P</div>
+                    <div class="timeline-content">
+                        <h5>PlanでAを行動に変換</h5>
+                        <p><strong>なぜ？</strong> 分析だけでは支援は進まない。具体的な行動計画が必要です。</p>
+                        <p style="margin-top: 8px;"><strong>コツ</strong>：「誰が、いつ、何を、どのように」を明記。計画の評価方法も書いておくと、次回の記録がスムーズ</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3><i class="fas fa-clipboard-check"></i> 質を高めるチェックリスト</h3>
+
+            <div class="checklist">
+                <div class="checklist-item">
+                    <i class="fas fa-check-square"></i>
+                    <div>
+                        <strong>【S】本人の言葉を直接引用しているか？</strong>
+                        <p style="margin-top: 5px; color: #718096; font-size: 0.95em;">「　」で囲み、具体的な発言を記録</p>
+                    </div>
+                </div>
+
+                <div class="checklist-item">
+                    <i class="fas fa-check-square"></i>
+                    <div>
+                        <strong>【O】観察可能な事実のみを記録しているか？</strong>
+                        <p style="margin-top: 5px; color: #718096; font-size: 0.95em;">推測や解釈を混入させていないか確認</p>
+                    </div>
+                </div>
+
+                <div class="checklist-item">
+                    <i class="fas fa-check-square"></i>
+                    <div>
+                        <strong>【A】理論的根拠を示しているか？</strong>
+                        <p style="margin-top: 5px; color: #718096; font-size: 0.95em;">「○○理論に基づくと...」など、なぜそう評価したか説明</p>
+                    </div>
+                </div>
+
+                <div class="checklist-item">
+                    <i class="fas fa-check-square"></i>
+                    <div>
+                        <strong>【A】個別支援計画の目標と関連づけているか？</strong>
+                        <p style="margin-top: 5px; color: #718096; font-size: 0.95em;">目標達成度や課題を明記</p>
+                    </div>
+                </div>
+
+                <div class="checklist-item">
+                    <i class="fas fa-check-square"></i>
+                    <div>
+                        <strong>【P】SMART原則に沿っているか？</strong>
+                        <p style="margin-top: 5px; color: #718096; font-size: 0.95em;">具体的・測定可能・達成可能・関連性・期限設定</p>
+                    </div>
+                </div>
+
+                <div class="checklist-item">
+                    <i class="fas fa-check-square"></i>
+                    <div>
+                        <strong>【全体】他者が読んで理解できるか？</strong>
+                        <p style="margin-top: 5px; color: #718096; font-size: 0.95em;">専門用語の説明、文脈の補足があるか</p>
+                    </div>
+                </div>
+
+                <div class="checklist-item">
+                    <i class="fas fa-check-square"></i>
+                    <div>
+                        <strong>【倫理】利用者の尊厳を守る表現か？</strong>
+                        <p style="margin-top: 5px; color: #718096; font-size: 0.95em;">ラベリングや差別的表現がないか確認</p>
+                    </div>
+                </div>
+
+                <div class="checklist-item">
+                    <i class="fas fa-check-square"></i>
+                    <div>
+                        <strong>【実用性】この記録は支援の改善に役立つか？</strong>
+                        <p style="margin-top: 5px; color: #718096; font-size: 0.95em;">形式を埋めるだけになっていないか自問</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3><i class="fas fa-question-circle"></i> よくある質問</h3>
+
+            <div class="accordion">
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span>Q1: 利用者が何も話さない場合、Sはどう書けばいい？</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-content-inner">
+                            <p><strong>A:</strong> 「S: 特になし」ではなく、<strong>その状況を記録</strong>します。</p>
+                            <p style="margin-top: 10px;"><strong>例</strong>：「S: 本日の面談で、『調子はどうですか？』という問いかけに対して、無言のまま目を伏せる様子が見られた。再度、『話したくないこともあると思いますが、何か困っていることはありますか？』と尋ねたが、首を横に振るのみで発言なし」</p>
+                            <p style="margin-top: 10px;">→ 「話さなかった」という事実も、重要な情報です。その状況や支援者の働きかけも含めて記録しましょう。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span>Q2: SとOの境界が曖昧になってしまう...</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-content-inner">
+                            <p><strong>A:</strong> 判断の基準は「<strong>誰が情報源か</strong>」です。</p>
+                            <ul style="padding-left: 20px; margin: 10px 0;">
+                                <li><strong>S</strong>：利用者本人や家族が<strong>語った</strong>こと</li>
+                                <li><strong>O</strong>：支援者が<strong>観察した</strong>こと</li>
+                            </ul>
+                            <p style="margin-top: 10px;"><strong>迷う例</strong>：「不安そうな表情」→ これはどちら？</p>
+                            <p style="margin-top: 5px;"><strong>答え</strong>：Oです。「不安そう」は支援者の解釈ですが、「表情」という観察可能な情報に基づいているため、Oに記録します。ただし、可能な限り具体的に記述（例：「眉間にしわを寄せ、視線が定まらず、手を握りしめる様子」）</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span>Q3: 記録に時間がかかりすぎる...効率化のコツは？</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-content-inner">
+                            <p><strong>A:</strong> 以下の方法で効率化できます：</p>
+                            <ol style="padding-left: 20px; margin: 10px 0;">
+                                <li><strong>支援直後にメモ</strong>：記憶が鮮明なうちにS・Oだけでもメモしておく（スマホのメモ機能も活用）</li>
+                                <li><strong>テンプレートの活用</strong>：頻繁に使う表現は定型文として保存（ただし、コピペで思考停止しないよう注意）</li>
+                                <li><strong>音声入力の活用</strong>：Sの直接引用は、その場で音声メモに残すと正確</li>
+                                <li><strong>優先順位をつける</strong>：全ての支援を詳細にSOAPで記録する必要はない。重要な場面や変化があった時に注力</li>
+                                <li><strong>チームで記録を分担</strong>：グループ支援では、役割分担して記録（一人がファシリテーター、一人が記録係など）</li>
+                            </ol>
+                            <p style="margin-top: 10px;"><strong>注意</strong>：効率化は大切ですが、質を犠牲にしないこと。「早く書く」より「必要な情報を正確に書く」ことを優先しましょう。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <span>Q4: 理論的根拠（A）を書くのが難しい...</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-content-inner">
+                            <p><strong>A:</strong> 最初から完璧な理論的分析は不要です。以下のステップで段階的に：</p>
+                            <ol style="padding-left: 20px; margin: 10px 0;">
+                                <li><strong>初級レベル</strong>：「○○という発言（S）と△△という行動（O）から、□□という状態だと考えられる」と、データと解釈を結びつける</li>
+                                <li><strong>中級レベル</strong>：「過去の同様の場面と比較すると、今回は...」と、経時的変化を分析</li>
+                                <li><strong>上級レベル</strong>：「認知行動療法の理論に基づくと、この発言は自動思考の現れであり...」と、専門理論を適用</li>
+                            </ol>
+                            <p style="margin-top: 10px;"><strong>学習方法</strong>：</p>
+                            <ul style="padding-left: 20px; margin-top: 5px;">
+                                <li>先輩の記録を読んで、どんな理論を使っているか学ぶ</li>
+                                <li>事例検討会で、自分の記録をチームで振り返る</li>
+                                <li>心理学や支援技法の基礎を学ぶ（書籍、研修など）</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. まとめ -->
+        <section>
+            <h2><i class="fas fa-flag-checkered"></i> まとめ：記録から始まる支援の質向上</h2>
+
+            <div class="key-point">
+                <h4><i class="fas fa-star"></i> SOAP記録法の本質</h4>
+                <p>SOAP記録法は、単なる記録のフォーマットではなく、<span class="highlight">支援者の科学的思考プロセスを可視化し、チームでエビデンスを蓄積していく文化</span>を作るツールです。</p>
+            </div>
+
+            <h3><i class="fas fa-seedling"></i> 継続的改善のために</h3>
+
+            <div class="success-box">
+                <h4><i class="fas fa-sync-alt"></i> SOAPとPDCAサイクル</h4>
+                <p>SOAP記録は、PDCAサイクルと完全に連動します：</p>
+                <ul style="padding-left: 20px; margin-top: 10px;">
+                    <li><strong>Plan（計画）</strong>：前回のSOAPのPを実行</li>
+                    <li><strong>Do（実行）</strong>：支援を実施し、S+Oを記録</li>
+                    <li><strong>Check（評価）</strong>：Aで計画の効果を評価</li>
+                    <li><strong>Action（改善）</strong>：新たなPを立案</li>
+                </ul>
+                <p style="margin-top: 10px;">この循環を繰り返すことで、支援の質は段階的に向上していきます。</p>
+            </div>
+
+            <h3><i class="fas fa-users"></i> エビデンス構築への貢献</h3>
+
+            <p>個々のSOAP記録は、集積されることで<strong>支援実践のエビデンス</strong>となります。</p>
+
+            <div class="info-box">
+                <h4><i class="fas fa-database"></i> 記録がもたらす3つの価値</h4>
+                <ol style="padding-left: 20px;">
+                    <li><strong>個人レベル</strong>：利用者一人ひとりに最適化された支援の実現</li>
+                    <li><strong>組織レベル</strong>：事業所の支援ノウハウの蓄積と共有</li>
+                    <li><strong>社会レベル</strong>：障害福祉分野全体のエビデンスベースド実践の推進</li>
+                </ol>
+            </div>
+
+            <p style="margin-top: 25px;">あなたが今日書くSOAP記録は、利用者の未来を変える一歩であり、同時に、福祉の未来を築く礎となります。</p>
+
+            <div class="quote">
+                「記録は支援の鏡である。そこに映るのは、支援者の思考の深さと、利用者への真摯な向き合い方である」
+            </div>
+
+            <p style="text-align: center; margin-top: 30px; font-size: 1.2em; color: #2c7a7b; font-weight: bold;">
+                <i class="fas fa-heart"></i> 良い記録が、良い支援を生む <i class="fas fa-heart"></i>
+            </p>
+        </section>
+
+        <!-- リソース -->
+        <section>
+            <div class="resources">
+                <h4><i class="fas fa-book-reader"></i> さらに学ぶための情報源</h4>
+                <ul>
+                    <li>
+                        <i class="fas fa-link"></i>
+                        <a href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/hukushi_kaigo/shougaishahukushi/service/naiyou.html" target="_blank">厚生労働省｜障害福祉サービスについて</a>
+                    </li>
+                    <li>
+                        <i class="fas fa-link"></i>
+                        <a href="https://www.jsswh.jp/" target="_blank">日本ソーシャルワーク学会</a>
+                    </li>
+                    <li>
+                        <i class="fas fa-link"></i>
+                        <a href="https://www.jsccp.jp/" target="_blank">日本認知・行動療法学会</a>
+                    </li>
+                    <li>
+                        <i class="fas fa-link"></i>
+                        <a href="https://www.jpa.or.jp/" target="_blank">日本精神保健福祉士協会</a>
+                    </li>
+                    <li>
+                        <i class="fas fa-book"></i>
+                        推奨書籍：『医療・福祉のための記録の書き方』（各種出版社）
+                    </li>
+                    <li>
+                        <i class="fas fa-book"></i>
+                        推奨書籍：『エビデンスに基づく障害者支援』（医学書院等）
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <footer>
+            <p><i class="fas fa-clipboard-list"></i></p>
+            <p>SOAP記録法：支援の質を高める記録の技術</p>
+            <p>就労移行支援における記録作成の標準化と思考プロセスの可視化</p>
+            <div class="author">
+                <p>作成者：岡村雄一郎（KBC / Kizuki Business College）</p>
+                <p>対象：就労移行支援事業所スタッフ教育用資料</p>
+                <p>&copy; 2024 KBC. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // アコーディオン機能
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const item = header.parentElement;
+                const wasActive = item.classList.contains('active');
+                
+                // 全てのアコーディオンを閉じる
+                document.querySelectorAll('.accordion-item').forEach(i => {
+                    i.classList.remove('active');
+                });
+                
+                // クリックされた項目をトグル
+                if (!wasActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 初期表示時に最初のアコーディオンを開く
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstAccordion = document.querySelector('.accordion-item');
+            if (firstAccordion) {
+                firstAccordion.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>
